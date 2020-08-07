@@ -166,6 +166,8 @@ const extendConfig = function () {
         filename: `[name].js`,
         chunkFilename: `[name]-${packageInfo.version}.js`,
         path: path.resolve(__dirname, "dist/production/ovenplayer"),
+
+        libraryTarget: "amd",
       },
       plugins: [
         new GitRevisionPlugin(),
