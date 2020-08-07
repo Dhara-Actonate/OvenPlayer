@@ -1,15 +1,13 @@
-import OvenPlayerSDK, {checkAndGetContainerElement} from './ovenplayer.sdk'
-import View from './view/view';
-import dom from './utils/polyfills/dom.js';
-import 'babel-polyfill';
-import {getScriptPath} from 'utils/webpack';
+import OvenPlayerSDK, { checkAndGetContainerElement } from "./ovenplayer.sdk";
+import View from "./view/view";
+import dom from "./utils/polyfills/dom.js";
+import "babel-polyfill";
+import { getScriptPath } from "utils/webpack";
 
-
-__webpack_public_path__ = getScriptPath('ovenplayer.js');
+__webpack_public_path__ = getScriptPath("ovenplayer.js");
 
 const OvenPlayer = {};
 window.OvenPlayer = OvenPlayer;
-
 
 /**
  * Copy properties from OvenPlayerSDK object to OvenPlayer object
@@ -17,36 +15,43 @@ window.OvenPlayer = OvenPlayer;
 Object.assign(OvenPlayer, OvenPlayerSDK);
 
 OvenPlayer.create = function (container, options) {
-    let containerElement = checkAndGetContainerElement(container);
+  let containerElement = checkAndGetContainerElement(container);
 
-    var player = View(containerElement);
+  var player = View(containerElement);
 
-    if (!window.console || Object.keys(window.console).length === 0) {
-        window.console = {
-            log: function() {},
-            info: function() {},
-            error: function() {},
-            warn: function() {}
-        };
-    }
-    if (!window.OvenPlayerConsole || Object.keys(window.OvenPlayerConsole).length === 0) {
-        window.OvenPlayerConsole = {};
-        OvenPlayerConsole['log'] = function(){};
-    }
+  if (!window.console || Object.keys(window.console).length === 0) {
+    window.console = {
+      log: function () {},
+      info: function () {},
+      error: function () {},
+      warn: function () {},
+    };
+  }
+  if (
+    !window.OvenPlayerConsole ||
+    Object.keys(window.OvenPlayerConsole).length === 0
+  ) {
+    window.OvenPlayerConsole = {};
+    OvenPlayerConsole["log"] = function () {};
+  }
 
+  const playerInstance = OvenPlayerSDK.create(
+    player.getMediaElementContainer(),
+    options
+  );
+  if (options.debug) {
+    playerInstance.log = window["console"]["log"];
+  }
 
-    const playerInstance = OvenPlayerSDK.create(player.getMediaElementContainer(), options);
-    if(options.debug){
-        playerInstance.log = window['console']['log'];
-    }
+  Object.assign(playerInstance, {
+    getContainerId: function () {
+      return containerElement.id;
+    },
+  });
 
-    Object.assign(playerInstance, {
-        getContainerId : function(){
-           return containerElement.id;
-       }
-    });
+  player.setApi(playerInstance);
 
-    player.setApi(playerInstance);
+  return playerInstance;
+};
 
-    return playerInstance;
-}
+export default OvenPlayer;
